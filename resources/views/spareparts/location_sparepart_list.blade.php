@@ -32,10 +32,12 @@
 
                 <dd class="col-sm-3">Nama Sparepart</dd>
                 <dt class="col-sm-9">{{$dataSparepartAndLocation->sparepartName}}</dt>
+                <dd class="col-sm-3">Stok</dd>
+                <dt class="col-sm-9">{{$dataSparepartAndLocation->stock}} {{$dataSparepartAndLocation->satuan}}</dt>
                 <dd class="col-sm-3"></dd>
                 <dt class="col-sm-9">
                     <br>
-                    <a href="{{ route('warehouseSparepartStock')}}?locationId={{$locationId}}" class="btn btn-warning btn-sm">Kembali</a>
+                    <a href="{{ route('locationSparepartStock')}}?locationId={{$locationId}}" class="btn btn-warning btn-sm">Kembali</a>
                     <br>
                     <br>
                 </dt>

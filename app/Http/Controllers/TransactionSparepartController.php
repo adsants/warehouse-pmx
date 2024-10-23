@@ -86,7 +86,7 @@ class TransactionSparepartController extends Controller
             //dd($listRows);
     
             $dataSparepartAndLocation = DB::table('sparepart_stocks')
-            ->select('locations.id as locationId', 'locations.name as locationName', 'locations.location_type', 'spareparts.name as sparepartName','spareparts.part_number')
+            ->select('locations.id as locationId', 'locations.name as locationName', 'locations.location_type', 'spareparts.name as sparepartName','spareparts.part_number','sparepart_stocks.stock','spareparts.satuan')
             ->join('locations','locations.id','=','sparepart_stocks.location_id')
             ->join('spareparts','spareparts.id','=','sparepart_stocks.sparepart_id')
             ->orderBy('locations.name','asc')
@@ -302,7 +302,38 @@ class TransactionSparepartController extends Controller
             where 
                 sparepart_outs.from_location_id = '".$request->query('locationId')."'  
                 and sparepart_outs.sparepart_id = '".$request->query('sparepartId')."' 
+
             union
+
+            select 
+                sparepart_outs.sparepart_id,
+                sparepart_outs.to_location_id,
+                sparepart_outs.entry_date,
+                sparepart_outs.qty,
+                spareparts.name as sparepartName,
+                spareparts.part_number,
+                spareparts.satuan,
+                sparepart_outs.description,
+                sparepart_outs.kategori as kategoriPakai,
+                locations.name as locationName,
+                'In' as kategoriInOut,
+                units.hull_number,
+                units.type,
+                units.model,
+                units.merk,
+                units.sn
+            from 
+                sparepart_outs
+                left join spareparts on  sparepart_outs.sparepart_id = spareparts.id 
+                left join  locations on  locations.id = sparepart_outs.to_location_id
+                left join  units on  units.id = sparepart_outs.unit_id
+            where 
+                sparepart_outs.from_location_id != '".$request->query('locationId')."'  
+                and sparepart_outs.to_location_id = '".$request->query('locationId')."'  
+                and sparepart_outs.sparepart_id = '".$request->query('sparepartId')."' 
+                
+            union
+
             select 
                 sparepart_ins.sparepart_id,
                 '-',
@@ -336,7 +367,7 @@ class TransactionSparepartController extends Controller
             //dd($listRows);
     
             $dataSparepartAndLocation = DB::table('sparepart_stocks')
-            ->select('locations.id as locationId', 'locations.name as locationName', 'locations.location_type', 'spareparts.name as sparepartName','spareparts.part_number')
+            ->select('locations.id as locationId', 'locations.name as locationName', 'locations.location_type', 'spareparts.name as sparepartName','spareparts.part_number','sparepart_stocks.stock','spareparts.satuan')
             ->join('locations','locations.id','=','sparepart_stocks.location_id')
             ->join('spareparts','spareparts.id','=','sparepart_stocks.sparepart_id')
             ->orderBy('locations.name','asc')
@@ -386,6 +417,7 @@ class TransactionSparepartController extends Controller
         ->join('spareparts','spareparts.id','=','sparepart_outs.sparepart_id')
         ->orderBy('locations.name','asc')
         ->where('sparepart_outs.to_location_id','=',$request->query('locationId'))
+        ->where('sparepart_outs.from_location_id','!=',$request->query('locationId'))
         ->whereNull('sparepart_outs.received_at')
         ->get();
 
