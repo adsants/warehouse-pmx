@@ -32,7 +32,7 @@
                         <select name="from_location_id" id="from_location_id" required class="form-control select2">
                             <option value="">Silahkan Pilih</option>
                             @foreach ($listOfLocations as $listOfLocation)
-                                <option value="{{ $listOfLocation->id }}">{{ $listOfLocation->name }}</option>
+                                <option {{ ($locationId == $listOfLocation->id) ? "selected" : ""; }} value="{{ $listOfLocation->id }}">{{ $listOfLocation->name }}</option>
                             @endforeach
                         </select>
                         
@@ -42,6 +42,10 @@
                     </div>
                 </div>
 
+                <?php
+                if($locationId){
+                ?>
+
                 <div class="mb-3 row">
                     <label for="name" class="col-md-3 col-form-label text-md-end text-start">Sparepart</label>
                     <div class="col-md-9">
@@ -49,7 +53,7 @@
                         <select name="sparepart_id" id="sparepart_id" required class="form-control select2">
                             <option value="">Silahkan Pilih</option>
                             @foreach ($listOfSpareparts as $listOfSparepart)
-                                <option value="{{ $listOfSparepart->id }}"  mySatuan="{{ $listOfSparepart->satuan }}">{{ $listOfSparepart->name }} - {{ $listOfSparepart->part_number }}</option>
+                                <option value="{{ $listOfSparepart->id }}"  mySatuan="{{ $listOfSparepart->satuan }}" myQty="{{ $listOfSparepart->stock }}">{{ $listOfSparepart->name }} - {{ $listOfSparepart->part_number }}</option>
                             @endforeach
                         </select>
                         
@@ -60,7 +64,6 @@
                 </div>
 
 
-                
                 <div class="mb-3 row">
                     <label for="name" class="col-md-3 col-form-label text-md-end text-start">Tujuan Lokasi</label>
                     <div class="col-md-9">
@@ -79,11 +82,11 @@
                 </div>
 
                 
-                <div class="mb-3 row">
-                    <label for="name" class="col-md-3 col-form-label text-md-end text-start">Tujuan Sparepart</label>
+                <div class="mb-3 row" style="display:none">
+                    <label for="name" class="col-md-3 col-form-label text-md-end text-start" readonly>Tujuan Sparepart</label>
                     <div class="col-md-9">
                         
-                        <select name="kategori" id="kategori" required class="form-control select2">
+                        <select name="kategori" id="kategori" required class="form-control">
                             <option value="">Silahkan Pilih</option>
                             <option value="Dipakai">Dipakai</option>
                             <option selected value="Dikirim Ke Lokasi">Dikirim Ke Lokasi</option>
@@ -95,6 +98,37 @@
                     </div>
                 </div>
                 
+                
+                <span  id="spanUnits" style="display:none">
+                <div class="mb-3 row">
+                    <label for="name" class="col-md-3 col-form-label text-md-end text-start">Unit</label>
+                    <div class="col-md-9">
+                        
+                        <select name="unit_id" id="unit_id" required class="form-control select2s">
+                            <option value="">Silahkan Pilih </option>
+                            @foreach ($listOfUnits as $listOfUnit)
+                                <option value="{{ $listOfUnit->id }}">{{ $listOfUnit->hull_number }} - {{ $listOfUnit->type }} - {{ $listOfUnit->model }}</option>
+                            @endforeach
+                        </select>
+                        
+                        @if ($errors->has('unit_id'))
+                        <span class="text-danger">{{ $errors->first('unit_id') }}</span>
+                        @endif
+                    </div>
+                </div>
+                
+                <div class="mb-3 row">
+                    <label for="working_hour" class="col-md-3 col-form-label text-md-end text-start">Hour Meter</label>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control" id="working_hour" name="working_hour">
+
+                        @if ($errors->has('working_hour'))
+                        <span class="text-danger">{{ $errors->first('working_hour') }}</span>
+                        @endif
+                    </div>
+                </div>
+                </span>
+
                 <div class="mb-3 row">
                     <label for="qty" class="col-md-3 col-form-label text-md-end text-start">Qty                     </label>
                     <div class="col-md-3">
@@ -120,7 +154,7 @@
                 </div>
 
                 <div class="mb-3 row">
-                    <label for="description" class="col-md-3 col-form-label text-md-end text-start">Keterangan<br><sup>* jika diperlukan</sup></label>
+                    <label for="description" class="col-md-3 col-form-label text-md-end text-start">Keterangan<br><sub>* jika diperlukan</sub></label>
                     <div class="col-md-9">
                         <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description">{{ old('description') }}</textarea>
 
@@ -140,6 +174,10 @@
                     </div>
                 </div>
 
+                <?php
+                }
+                ?>
+
             </form>
         </div>
     </div>
@@ -155,14 +193,73 @@
 <script>
     $(document).ready(function() {
         $('.select2').select2();
+
+        <?php
+        if($redirectLocation != '' ){
+        ?>
+            location.href = '?locationId='+<?php echo $redirectLocation;?>;
+        <?php
+        }
+        ?>
     })
 
     $("#sparepart_id").change(function(){ 
         var element = $(this).find('option:selected'); 
         var mySatuan = element.attr("mySatuan"); 
+        var myStock = element.attr("myQty"); 
 
-        $('#satuanText').html(mySatuan);
+        var textStock = "Stok = "+myStock+" "+mySatuan;
+
+        $('#satuanText').html(textStock);
+        $('#qty').prop('max',myStock);
         $('#qty').focus();
     });
+
+    $("#from_location_id").change(function(){         
+        var locationId = $('#from_location_id').val();      
+        location.href = '?locationId='+locationId;
+    });
+
+    $("#kategori").change(function(){  
+        
+        if($('#kategori').val() == 'Dipakai'){
+            jikaDipakai();
+        }
+        else{
+            jikaDikirim();
+        }
+    });
+
+    function jikaDipakai(){
+        $('#spanUnits').show();   
+        $("#unit_id").attr("required", true);
+        $("#working_hour").attr("required", true);
+   
+    }
+    function jikaDikirim(){
+        $('#spanUnits').hide();     
+        $("#unit_id").val("");
+        $("#unit_id").attr("required", false);
+        $("#working_hour").attr("required", false);
+        $("#working_hour").val("");
+
+    }
+
+    $("#to_location_id").change(function(){         
+        var toLocationId    = $('#to_location_id').val();      
+        var fromLocationId  = $('#from_location_id').val();      
+        //alert(fromLocationId);
+        if(toLocationId == fromLocationId){
+            $('#kategori').val('Dipakai');
+            jikaDipakai();
+        }
+        else{
+            $('#kategori').val('Dikirim Ke Lokasi');
+            jikaDikirim();
+        }
+
+
+    });
+
 </script>
 @endsection

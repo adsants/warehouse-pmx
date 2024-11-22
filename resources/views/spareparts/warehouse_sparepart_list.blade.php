@@ -53,6 +53,8 @@
                             <th width="10%">Satuan</th>
                             <th width="15%">kategori Pakai</th>
                             <th width="10%">kategori In Out</th>
+                            <th width="10%">Unit</th>
+                            <th width="10%">Hour Meter</th>
                             <th width="20%">Tujuan Lokasi Out</th>
                         </tr>
                     </thead>
@@ -65,6 +67,8 @@
                             <td>{{ $rowData->satuan }}</td>
                             <td>{{ $rowData->kategoriPakai }}</td>
                             <td>{{ $rowData->kategoriInOut }}</td>
+                            <td>{{ ($rowData->hull_number!='') ? $rowData->hull_number." - ".$rowData->model." - ".$rowData->type : ""}}</td>
+                            <td>{{ $rowData->working_hour }}</td>
                             <td>{{ $rowData->locationName }}</td>
                         </tr>
                         @empty

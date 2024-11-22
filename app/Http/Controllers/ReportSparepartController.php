@@ -19,6 +19,7 @@ use App\Http\Requests\StoreTransactionWarehouseOutRequest;
 
 use App\Exports\StockAll;
 use App\Exports\StockAllPerLocation;
+use App\Exports\UnitSparepart;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportSparepartController extends Controller
@@ -30,6 +31,29 @@ class ReportSparepartController extends Controller
     {
        $this->middleware('auth');
     }
+
+    
+    public function reportStockSparepart(Request $request): View
+    {
+
+        $listRows = DB::table('sparepart_stocks')
+        
+        ->select('spareparts.id as sparepartId', 'spareparts.part_number', 'spareparts.name', 'spareparts.satuan', 'sparepart_stocks.stock', 'sparepart_stocks.id as stockId','sparepart_stocks.location_id','locations.name as locationName')
+
+        ->join('spareparts','spareparts.id','=','sparepart_stocks.sparepart_id')
+        ->join('locations','locations.id','=','sparepart_stocks.location_id')
+
+        ->orderBy('spareparts.part_number','asc')
+        ->orderBy('locations.name','asc')
+
+        ->get();
+
+        return view('reports.sparepart_stock', [
+            'listRows' =>  $listRows ,                               
+        ]);
+        
+    }
+    
     
     public function reportAllSparepart(Request $request): View
     {
@@ -109,6 +133,21 @@ class ReportSparepartController extends Controller
                 'listRows' =>  $listOfUnits ,                                  
             ]);
         }
+    }
+
+
+    public function sparepartUnit(Request $request) 
+    {
+
+        $dataUnit = DB::table('units')
+        ->select('id','hull_number','type','merk','model')
+        ->where('id','=', $request->query('unitId'))
+        ->first();
+
+       
+
+        return Excel::download(new UnitSparepart($request->query('unitId')) , 'Riwayat Sparepart di Unit '.$dataUnit->hull_number.' - '.now().'.xlsx');
+
     }
 
 }

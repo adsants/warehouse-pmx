@@ -54,6 +54,7 @@
                             <th width="15%">kategori Pakai</th>
                             <th width="10%">kategori In Out</th>
                             <th width="20%">Unit</th>
+                            <th width="10%">Hour Meter</th>
                             <th width="20%">Keterangan</th>
                         </tr>
                     </thead>
@@ -66,7 +67,9 @@
                             <td>{{ $rowData->satuan }}</td>
                             <td>{{ $rowData->kategoriPakai }}</td>
                             <td>{{ $rowData->kategoriInOut }}</td>
-                            <td>{{ $rowData->hull_number }} - {{ $rowData->model }} - {{ $rowData->type }}</td>
+                            <td>{{ ($rowData->hull_number!='') ? $rowData->hull_number." - ".$rowData->model." - ".$rowData->type : ""}}</td>
+                            
+                            <td>{{ $rowData->working_hour }}</td>
                             <td>{{ $rowData->description }}</td>
                         </tr>
                         @empty
@@ -97,6 +100,7 @@
 <script src="{{ asset('assets/js/demo/datatables-demo.js') }}"></script>
 
 <script>
+
 
 $("#location_id").change(function(){ 
     var locationId = $('#location_id').val();

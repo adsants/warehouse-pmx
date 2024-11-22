@@ -37,10 +37,13 @@ class TransactionSparepartController extends Controller
 
             $listRows = DB::select("
             select 
+                units.hull_number,units.type,units.model,
+                sparepart_outs.created_at,
+                sparepart_outs.id,
                 sparepart_outs.sparepart_id,
                 sparepart_outs.to_location_id,
                 sparepart_outs.entry_date,
-                sparepart_outs.qty,
+                sparepart_outs.qty,sparepart_outs.working_hour,
                 spareparts.name as sparepartName,
                 spareparts.part_number,
                 spareparts.satuan,
@@ -49,20 +52,23 @@ class TransactionSparepartController extends Controller
                 locations.name as locationName,
                 'Out' as kategoriInOut
             from 
-                sparepart_outs,
-                spareparts,
-                locations
+                sparepart_outs
+                left join spareparts on sparepart_outs.sparepart_id = spareparts.id 
+                left join locations on locations.id = sparepart_outs.to_location_id 
+                left join units on sparepart_outs.unit_id = units.id 
+
             where 
-                sparepart_outs.sparepart_id = spareparts.id 
-                and locations.id = sparepart_outs.to_location_id
-                and sparepart_outs.from_location_id = '".$request->query('locationId')."'  
+                sparepart_outs.from_location_id = '".$request->query('locationId')."'  
                 and sparepart_outs.sparepart_id = '".$request->query('sparepartId')."' 
-            union
+        union
             select 
+                '','','',
+                sparepart_ins.created_at,
+                sparepart_ins.id,
                 sparepart_ins.sparepart_id,
                 '-',
                 sparepart_ins.entry_date,
-                sparepart_ins.qty,
+                sparepart_ins.qty,'',
                 spareparts.name as sparepartName,
                 spareparts.part_number,
                 spareparts.satuan,
@@ -71,16 +77,14 @@ class TransactionSparepartController extends Controller
                 '-',
                 'In'
             from 
-                sparepart_ins,
-                spareparts
+                sparepart_ins
+                left join spareparts on sparepart_ins.sparepart_id = spareparts.id 
             where 
-                sparepart_ins.sparepart_id = spareparts.id 
-                and sparepart_ins.location_id = '".$request->query('locationId')."' 
-                and sparepart_ins.sparepart_id =  '".$request->query('sparepartId')."' 
-                
+                sparepart_ins.location_id = '".$request->query('locationId')."' 
+                and sparepart_ins.sparepart_id =  '".$request->query('sparepartId')."'               
             order by 
-                entry_date desc
-            
+                created_at desc,
+                id desc
             ");
 
             //dd($listRows);
@@ -89,9 +93,9 @@ class TransactionSparepartController extends Controller
             ->select('locations.id as locationId', 'locations.name as locationName', 'locations.location_type', 'spareparts.name as sparepartName','spareparts.part_number','sparepart_stocks.stock','spareparts.satuan')
             ->join('locations','locations.id','=','sparepart_stocks.location_id')
             ->join('spareparts','spareparts.id','=','sparepart_stocks.sparepart_id')
-            ->orderBy('locations.name','asc')
             ->where('sparepart_stocks.location_id','=',$request->query('locationId'))
             ->where('sparepart_stocks.sparepart_id','=',$request->query('sparepartId'))
+            ->orderBy('locations.name','asc')
             ->first();
             
             return view('spareparts.warehouse_sparepart_list', [
@@ -102,6 +106,41 @@ class TransactionSparepartController extends Controller
         }
         else{
 
+            $listOfLocations = DB::table('user_locations')
+            ->select('locations.id', 'locations.name', 'locations.location_type')
+            ->join('locations','locations.id','=','user_locations.location_id')
+            ->orderBy('locations.name','asc')
+            ->where('user_locations.user_id','=', auth()->user()->id)
+            ->where('locations.location_type','=', 'Warehouse')
+            ->get();
+
+            //dd($listOfLocations);
+
+            $totalLocations = count($listOfLocations);
+            $locationId = $request->locationId;
+
+            if($totalLocations == 1){
+                if($request->locationId ){
+                    //dd('disini 1');
+                    $redirectLocation = "";
+                }else{
+                    //dd('disini 2');
+                    $rowLocations = DB::table('user_locations')
+                    ->select('locations.id', 'locations.name', 'locations.location_type')
+                    ->join('locations','locations.id','=','user_locations.location_id')
+                    ->orderBy('locations.name','asc')
+                    ->where('user_locations.user_id','=', auth()->user()->id)
+                    ->where('locations.location_type','=', 'Warehouse')
+                    ->where('locations.status_active','=', 'Active')
+                    ->first();
+    
+                    $redirectLocation = $rowLocations->id;
+                }
+            }else{
+                $redirectLocation = "";
+                
+            }
+
             $listRows = DB::table('sparepart_stocks')
             ->select('spareparts.id as sparepartId', 'spareparts.part_number', 'spareparts.name', 'spareparts.satuan', 'sparepart_stocks.stock', 'sparepart_stocks.id as stockId','sparepart_stocks.location_id')
             ->join('spareparts','spareparts.id','=','sparepart_stocks.sparepart_id')
@@ -110,17 +149,12 @@ class TransactionSparepartController extends Controller
             ->get();
             //dd($listRows);
     
-            $listOfLocations = DB::table('user_locations')
-            ->select('locations.id', 'locations.name', 'locations.location_type')
-            ->join('locations','locations.id','=','user_locations.location_id')
-            ->orderBy('locations.name','asc')
-            ->where('user_locations.user_id','=', auth()->user()->id)
-            ->where('locations.location_type','=', 'Warehouse')
-            ->get();
+           
             
             return view('spareparts.warehouse_sparepart_stock', [
                 'listRows' =>  $listRows ,                     
-                'listOfLocations' =>  $listOfLocations ,            
+                'listOfLocations' =>  $listOfLocations ,       
+                'redirectLocation' =>  $redirectLocation ,           
                 'locationId' =>  $request->query('locationId') ,            
             ]);
         }
@@ -138,7 +172,7 @@ class TransactionSparepartController extends Controller
     }
 
 
-    public function warehouseSparepartIn(): View
+    public function warehouseSparepartIn(Request $request): View
     {
         $listOfUnits = DB::table('units')
         ->select('type','merk','model')
@@ -161,11 +195,37 @@ class TransactionSparepartController extends Controller
         ->where('user_locations.user_id','=', auth()->user()->id)
         ->where('locations.location_type','=', 'Warehouse')
         ->get();
+        $totalLocations = count($listOfLocations);
+
+        $locationId = $request->locationId;
+
+        if($totalLocations == 1){
+            if($request->locationId ){
+                $redirectLocation = "";
+            }else{
+                $rowLocations = DB::table('user_locations')
+                ->select('locations.id', 'locations.name', 'locations.location_type')
+                ->join('locations','locations.id','=','user_locations.location_id')
+                ->orderBy('locations.name','asc')
+                ->where('user_locations.user_id','=', auth()->user()->id)
+                ->where('locations.location_type','=', 'Warehouse')
+                ->where('locations.status_active','=', 'Active')
+                ->first();
+
+                $redirectLocation = $rowLocations->id;
+            }
+        }else{
+            $redirectLocation = "";
+            
+        }
+
 
         return view('spareparts.warehouse_sparepart_in', [
             'listOfUnits' =>  $listOfUnits ,            
             'listOfSpareparts' =>  $listOfSpareparts ,            
-            'listOfLocations' =>  $listOfLocations ,            
+            'listOfLocations' =>  $listOfLocations ,                      
+            'locationId' =>  $locationId ,                  
+            'redirectLocation' =>  $redirectLocation ,            
        
         ]);
     }
@@ -177,27 +237,15 @@ class TransactionSparepartController extends Controller
 
         HelperGlobal::updateQtySparepartIn($request->sparepart_id, $request->location_id, $request->qty);
 
-        return redirect()->route('warehouseSparepartIn')
+        return redirect('warehouse-spareparts-in?locationId='.$request->location_id)
                 ->withSuccess('Sparepart masuk berhasil disimpan..');
     }
 
 
     
-    public function warehouseSparepartOut(): View
+    public function warehouseSparepartOut(Request $request): View
     {
-        $listOfUnits = DB::table('units')
-        ->select('type','merk','model')
-        ->groupBy('type','merk','model')
-        ->orderBy('type','asc')
-        ->orderBy('merk','asc')
-        ->orderBy('model','asc')
-        ->get();
-        
-        $listOfSpareparts = DB::table('spareparts')
-        ->orderBy('name','asc')
-        ->orderBy('part_number','asc')
-        ->get();
-        
+
 
         
         $listOfLocations = DB::table('user_locations')
@@ -208,18 +256,85 @@ class TransactionSparepartController extends Controller
         ->where('locations.location_type','=', 'Warehouse')
         ->where('locations.status_active','=', 'Active')
         ->get();
-        
-        $listOfAllLocations = DB::table('locations')
-        ->select('locations.id', 'locations.name', 'locations.location_type')
-        ->orderBy('locations.name','asc')
-        ->where('locations.status_active','=', 'Active')
-        ->get();
+
+        $totalLocations = count($listOfLocations);
+
+        $locationId = $request->locationId;
+
+        if($totalLocations == 1){
+            if($request->locationId ){
+                $redirectLocation = "";
+            }else{
+                $rowLocations = DB::table('user_locations')
+                ->select('locations.id', 'locations.name', 'locations.location_type')
+                ->join('locations','locations.id','=','user_locations.location_id')
+                ->orderBy('locations.name','asc')
+                ->where('user_locations.user_id','=', auth()->user()->id)
+                ->where('locations.location_type','=', 'Warehouse')
+                ->where('locations.status_active','=', 'Active')
+                ->first();
+
+                $redirectLocation = $rowLocations->id;
+            }
+        }else{
+            $redirectLocation = "";
+            
+        }
+
+
+        if($locationId){
+
+            $listOfSpareparts = DB::table('spareparts')
+            ->select('spareparts.id','spareparts.part_number','spareparts.name','spareparts.satuan','sparepart_stocks.stock')
+            ->join('sparepart_stocks','sparepart_stocks.sparepart_id','=','spareparts.id')
+            ->where('sparepart_stocks.location_id','=', $locationId)
+            ->orderBy('name','asc')
+            ->orderBy('part_number','asc')
+            ->get();         
+          
+            
+            
+            $listOfAllLocations = DB::table('locations')
+            ->select('locations.id', 'locations.name', 'locations.location_type')
+            ->orderBy('locations.name','asc')
+            ->where('locations.status_active','=', 'Active')
+            ->get();
+
+            
+            $rowLocations = DB::table('locations')
+            ->select('locations.id', 'locations.name', 'locations.location_type')
+            ->where('id','=',$locationId)
+            ->first();
+
+            $locationsName = $rowLocations->name;
+
+
+            $listOfUnits = DB::table('units')
+
+            ->select('units.id','hull_number','type','merk','model')
+            ->leftJoin('unit_locations','units.id', '=', 'unit_locations.unit_id')
+            ->where('unit_locations.location_name','=', $locationsName)
+            ->orderBy('type','asc')
+            ->orderBy('merk','asc')
+            ->orderBy('model','asc')
+            ->get();
+
+            //dd( $listOfUnits);
+            
+        }
+        else{
+            $listOfUnits = "";
+            $listOfSpareparts = "";
+            $listOfAllLocations = "";
+        }
 
         return view('spareparts.warehouse_sparepart_out', [
             'listOfUnits' =>  $listOfUnits ,            
             'listOfSpareparts' =>  $listOfSpareparts ,            
             'listOfLocations' =>  $listOfLocations ,                  
             'listOfAllLocations' =>  $listOfAllLocations ,                  
+            'locationId' =>  $locationId ,                  
+            'redirectLocation' =>  $redirectLocation ,                  
         ]);
     }
 
@@ -229,6 +344,21 @@ class TransactionSparepartController extends Controller
 
         //dd($request->from_location_id);
 
+        if($request->kategori == 'Dipakai'){
+            if($request->from_location_id != $request->to_location_id ){
+                return redirect('warehouse-spareparts-out?locationId='.$request->from_location_id)
+                ->withError('Jika tujuan sparepart Dipakai maka Dari dan Tujuan Lokasi harus Sama'); 
+            }
+        }
+
+        if($request->kategori != 'Dipakai'){
+            if($request->from_location_id == $request->to_location_id ){
+                return redirect('warehouse-spareparts-out?locationId='.$request->from_location_id)
+                ->withError('Jika tujuan sparepart Dipakai maka Dari dan Tujuan Lokasi tidak boleh Sama'); 
+            }
+        }
+
+
         $dataSparepartStock = SparepartStock::select('id','sparepart_id','location_id','stock')
         ->where('sparepart_id','=', $request->sparepart_id)
         ->where('location_id','=',  $request->from_location_id)
@@ -237,7 +367,7 @@ class TransactionSparepartController extends Controller
         if( $dataSparepartStock){
             
             if($request->qty > $dataSparepartStock->stock ){
-                return redirect()->route('warehouseSparepartOut')
+                return redirect('warehouse-spareparts-out?locationId='.$request->from_location_id)
                 ->withError('Stok sparepart adalah '.$dataSparepartStock->stock.', silahkan input jumlah qty kurang dari '.$dataSparepartStock->stock.'.'); 
             }
             else{               
@@ -246,8 +376,10 @@ class TransactionSparepartController extends Controller
                     'sparepart_id'      =>  $request->sparepart_id ,            
                     'from_location_id'  =>  $request->from_location_id ,            
                     'to_location_id'    =>  $request->to_location_id ,                  
+                    'unit_id'    =>  $request->unit_id ,                  
                     'entry_date'        =>  $request->entry_date ,
                     'qty'               =>  $request->qty ,
+                    'working_hour'               =>  $request->working_hour ,
                     'description'       =>  $request->description ,
                     'kategori'          =>  $request->kategori 
                 );
@@ -281,7 +413,7 @@ class TransactionSparepartController extends Controller
                 sparepart_outs.sparepart_id,
                 sparepart_outs.to_location_id,
                 sparepart_outs.entry_date,
-                sparepart_outs.qty,
+                sparepart_outs.qty,sparepart_outs.working_hour,
                 spareparts.name as sparepartName,
                 spareparts.part_number,
                 spareparts.satuan,
@@ -309,7 +441,7 @@ class TransactionSparepartController extends Controller
                 sparepart_outs.sparepart_id,
                 sparepart_outs.to_location_id,
                 sparepart_outs.entry_date,
-                sparepart_outs.qty,
+                sparepart_outs.qty,sparepart_outs.working_hour,
                 spareparts.name as sparepartName,
                 spareparts.part_number,
                 spareparts.satuan,
@@ -338,7 +470,7 @@ class TransactionSparepartController extends Controller
                 sparepart_ins.sparepart_id,
                 '-',
                 sparepart_ins.entry_date,
-                sparepart_ins.qty,
+                sparepart_ins.qty,'',
                 spareparts.name as sparepartName,
                 spareparts.part_number,
                 spareparts.satuan,
@@ -398,11 +530,39 @@ class TransactionSparepartController extends Controller
             ->where('user_locations.user_id','=', auth()->user()->id)
             ->where('locations.location_type','=', 'Work Location')
             ->get();
+
+            $totalLocations = count($listOfLocations);
+
+            $locationId = $request->locationId;
+
+            if($totalLocations == 1){
+                if($request->locationId ){
+                    $redirectLocation = "";
+                }else{
+                    $rowLocations = DB::table('user_locations')
+                    ->select('locations.id', 'locations.name', 'locations.location_type')
+                    ->join('locations','locations.id','=','user_locations.location_id')
+                    ->orderBy('locations.name','asc')
+                    ->where('user_locations.user_id','=', auth()->user()->id)
+                    ->where('locations.location_type','=', 'Work Location')
+                    ->where('locations.status_active','=', 'Active')
+                    ->first();
+
+                    $redirectLocation = $rowLocations->id;
+                }
+            }else{
+                $redirectLocation = "";
+                
+            }
+            
             
             return view('spareparts.location_sparepart_stock', [
                 'listRows' =>  $listRows ,                     
                 'listOfLocations' =>  $listOfLocations ,            
-                'locationId' =>  $request->query('locationId') ,            
+                'locationId' =>  $request->query('locationId') ,   
+            
+                'locationId' =>  $locationId ,                  
+                'redirectLocation' =>  $redirectLocation ,                  
             ]);
         }
     }
@@ -430,10 +590,36 @@ class TransactionSparepartController extends Controller
         ->where('locations.location_type','=', 'Work Location')
         ->get();
 
+        $totalLocations = count($listOfLocations);
+
+            $locationId = $request->locationId;
+
+            if($totalLocations == 1){
+                if($request->locationId ){
+                    $redirectLocation = "";
+                }else{
+                    $rowLocations = DB::table('user_locations')
+                    ->select('locations.id', 'locations.name', 'locations.location_type')
+                    ->join('locations','locations.id','=','user_locations.location_id')
+                    ->orderBy('locations.name','asc')
+                    ->where('user_locations.user_id','=', auth()->user()->id)
+                    ->where('locations.location_type','=', 'Work Location')
+                    ->where('locations.status_active','=', 'Active')
+                    ->first();
+
+                    $redirectLocation = $rowLocations->id;
+                }
+            }else{
+                $redirectLocation = "";
+                
+            }
+
         return view('spareparts.location_sparepart_in', [           
             'listOfLocations' =>  $listOfLocations ,            
             'dataSparepartIns' =>  $dataSparepartIn ,            
-            'locationId' =>  $request->query('locationId') ,   
+            'locationId' =>  $request->query('locationId') ,  
+            'locationId' =>  $locationId ,                  
+            'redirectLocation' =>  $redirectLocation 
        
         ]);
     }
@@ -463,14 +649,15 @@ class TransactionSparepartController extends Controller
         }
         else{
 
-            return redirect()->to('/location-sparepart-in')
+            return redirect()->to('/location-sparepart-in?locationId='.$request->to_location_id)
+           
             ->withSuccess('Sparepart tidak tersedia.');
         }
 
     }
 
     
-    public function locationSparepartBuy(): View
+    public function locationSparepartBuy(Request $request): View
     {
         $listOfUnits = DB::table('units')
         ->select('type','merk','model')
@@ -494,10 +681,38 @@ class TransactionSparepartController extends Controller
         ->where('locations.location_type','=', 'Work Location')
         ->get();
 
+        
+		
+        $totalLocations = count($listOfLocations);
+
+        $locationId = $request->locationId;
+
+        if($totalLocations == 1){
+            if($request->locationId ){
+                $redirectLocation = "";
+            }else{
+                $rowLocations = DB::table('user_locations')
+                ->select('locations.id', 'locations.name', 'locations.location_type')
+                ->join('locations','locations.id','=','user_locations.location_id')
+                ->orderBy('locations.name','asc')
+                ->where('user_locations.user_id','=', auth()->user()->id)
+                ->where('locations.location_type','=', 'Work Location')
+                ->where('locations.status_active','=', 'Active')
+                ->first();
+
+                $redirectLocation = $rowLocations->id;
+            }
+        }else{
+            $redirectLocation = "";
+            
+        }
+
         return view('spareparts.location_sparepart_buy', [
             'listOfUnits' =>  $listOfUnits ,            
             'listOfSpareparts' =>  $listOfSpareparts ,            
-            'listOfLocations' =>  $listOfLocations ,            
+            'listOfLocations' =>  $listOfLocations ,       
+            'locationId' =>  $locationId ,                  
+            'redirectLocation' =>  $redirectLocation     
        
         ]);
     }
@@ -517,22 +732,10 @@ class TransactionSparepartController extends Controller
 
     
     
-    public function locationSparepartOut(): View
+    public function locationSparepartOut(Request $request): View
     {
-        $listOfUnits = DB::table('units')
-        ->select('type','merk','model')
-        ->groupBy('type','merk','model')
-        ->orderBy('type','asc')
-        ->orderBy('merk','asc')
-        ->orderBy('model','asc')
-        ->get();
         
-        $listOfSpareparts = DB::table('spareparts')
-        ->orderBy('name','asc')
-        ->orderBy('part_number','asc')
-        ->get();
         
-
         
         $listOfLocations = DB::table('user_locations')
         ->select('locations.id', 'locations.name', 'locations.location_type')
@@ -542,25 +745,85 @@ class TransactionSparepartController extends Controller
         ->where('locations.location_type','=', 'Work Location')
         ->where('locations.status_active','=', 'Active')
         ->get();
-        
-        $listOfAllLocations = DB::table('locations')
-        ->select('locations.id', 'locations.name', 'locations.location_type')
-        ->orderBy('locations.name','asc')
-        ->where('locations.status_active','=', 'Active')
-        ->get();
 
-        
-        $listOfAllUnits = DB::table('units')
-        ->select('*')
-        ->orderBy('units.hull_number','asc')
-        ->get();
+        $totalLocations = count($listOfLocations);
+
+        $locationId = $request->locationId;
+
+        if($totalLocations == 1){
+            if($request->locationId ){
+                $redirectLocation = "";
+            }else{
+                $rowLocations = DB::table('user_locations')
+                ->select('locations.id', 'locations.name', 'locations.location_type')
+                ->join('locations','locations.id','=','user_locations.location_id')
+                ->orderBy('locations.name','asc')
+                ->where('user_locations.user_id','=', auth()->user()->id)
+                ->where('locations.location_type','=', 'Work Location')
+                ->where('locations.status_active','=', 'Active')
+                ->first();
+
+                $redirectLocation = $rowLocations->id;
+            }
+        }else{
+            $redirectLocation = "";
+            
+        }
+
+
+        if($locationId){
+
+            $listOfSpareparts = DB::table('spareparts')
+            ->select('spareparts.id','spareparts.part_number','spareparts.name','spareparts.satuan','sparepart_stocks.stock')
+            ->join('sparepart_stocks','sparepart_stocks.sparepart_id','=','spareparts.id')
+            ->where('sparepart_stocks.location_id','=', $locationId)
+            ->orderBy('name','asc')
+            ->orderBy('part_number','asc')
+            ->get();         
+          
+            
+            
+            $listOfAllLocations = DB::table('locations')
+            ->select('locations.id', 'locations.name', 'locations.location_type')
+            ->orderBy('locations.name','asc')
+            ->where('locations.status_active','=', 'Active')
+            ->get();
+
+            
+            $rowLocations = DB::table('locations')
+            ->select('locations.id', 'locations.name', 'locations.location_type')
+            ->where('id','=',$locationId)
+            ->first();
+
+            $locationsName = $rowLocations->name;
+
+
+            $listOfUnits = DB::table('units')
+
+            ->select('units.id','hull_number','type','merk','model')
+            ->leftJoin('unit_locations','units.id', '=', 'unit_locations.unit_id')
+            ->where('unit_locations.location_name','=', $locationsName)
+            ->orderBy('type','asc')
+            ->orderBy('merk','asc')
+            ->orderBy('model','asc')
+            ->get();
+
+            //dd( $listOfUnits);
+            
+        }
+        else{
+            $listOfUnits = "";
+            $listOfSpareparts = "";
+            $listOfAllLocations = "";
+        }
 
         return view('spareparts.location_sparepart_out', [
             'listOfUnits' =>  $listOfUnits ,            
             'listOfSpareparts' =>  $listOfSpareparts ,            
             'listOfLocations' =>  $listOfLocations ,                  
             'listOfAllLocations' =>  $listOfAllLocations ,                  
-            'listOfAllUnits' =>  $listOfAllUnits ,                  
+            'locationId' =>  $locationId ,                  
+            'redirectLocation' =>  $redirectLocation ,                  
         ]);
     }
 
@@ -572,6 +835,21 @@ class TransactionSparepartController extends Controller
         ->where('sparepart_id','=', $request->sparepart_id)
         ->where('location_id','=',  $request->from_location_id)
         ->first();
+
+        
+        if($request->kategori == 'Dipakai'){
+            if($request->from_location_id != $request->to_location_id ){
+                return redirect()->route('locationSparepartOut')
+                ->withError('Jika tujuan sparepart Dipakai maka Dari dan Tujuan Lokasi harus Sama'); 
+            }
+        }
+
+        if($request->kategori != 'Dipakai'){
+            if($request->from_location_id == $request->to_location_id ){
+                return redirect()->route('locationSparepartOut')
+                ->withError('Jika tujuan sparepart Dipakai maka Dari dan Tujuan Lokasi tidak boleh Sama'); 
+            }
+        }
 
         if( $dataSparepartStock){
             

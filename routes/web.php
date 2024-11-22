@@ -49,6 +49,8 @@ Route::get('/location-sparepart-stock', [TransactionSparepartController::class, 
 Route::get('/report-all-sparepart', [ReportSparepartController::class, 'reportAllSparepart'])->name('reportAllSparepart');
 Route::get('/report-all-sparepart/export-excel', [ReportSparepartController::class, 'stockAllPerLocation']);
 Route::get('/report-all-sparepart/export-excel-all', [ReportSparepartController::class, 'stockAll']);
+Route::get('/report-sparepart-unit', [ReportSparepartController::class, 'sparepartUnit']);
+Route::get('/report-stock-sparepart', [ReportSparepartController::class, 'reportStockSparepart'])->name('reportStockSparepart');
 
 Route::get('/sparepart-unit', [ReportSparepartController::class, 'reportSparepartUnit'])->name('reportSparepartUnit');
 

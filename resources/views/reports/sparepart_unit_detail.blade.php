@@ -34,6 +34,11 @@
                 <dt class="col-sm-9">
                     <br>
                     <a href="{{ route('reportSparepartUnit')}}" class="btn btn-warning btn-sm">Kembali</a>
+                    &nbsp;
+                    &nbsp;
+                    
+                    
+                    <a target="_blank" href="/report-sparepart-unit?unitId={{$dataUnit->id}}" class="btn btn-warning btn-sm"><i class="bi bi-eye"></i> Export Excel</a>
                     <br>
                     <br>
                 </dt>

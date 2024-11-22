@@ -98,5 +98,17 @@ $("#location_id").change(function(){
     var locationId = $('#location_id').val();
     location.href = '?locationId='+locationId;
 });
+
+
+    $(document).ready(function() {
+
+        <?php
+        if($redirectLocation != '' ){
+        ?>
+            location.href = '?locationId='+<?php echo $redirectLocation;?>;
+        <?php
+        }
+        ?>
+    })
 </script>
 @endsection

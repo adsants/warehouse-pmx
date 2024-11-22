@@ -87,7 +87,7 @@
     @endcanany
 
     
-    @canany(['report-all-sparepart','report-sparepart-unit'])
+    @canany(['report-all-sparepart','report-sparepart-unit','report-stok-sparepart'])
     <li class="nav-item">
         <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapse5" aria-expanded="true" aria-controls="collapse5">
             <i class="fas fa-fw fa-edit"></i>
@@ -100,6 +100,9 @@
                 @endcanany
                 @canany(['report-sparepart-unit'])
                 <a class="collapse-item" href="{{ route('reportSparepartUnit') }}">Sparepart Unit</a>
+                @endcanany
+                @canany(['report-stok-sparepart'])
+                <a class="collapse-item" href="{{ route('reportStockSparepart') }}">Stok Sparepart</a>
                 @endcanany
             </div>
         </div>

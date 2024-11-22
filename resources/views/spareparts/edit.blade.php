@@ -17,7 +17,7 @@
                 @method("PUT")
 
                 <div class="mb-3 row">
-                    <label for="name" class="col-md-3 col-form-label text-md-end text-start">Nama Lokasi</label>
+                    <label for="name" class="col-md-3 col-form-label text-md-end text-start">Nama Sparepart</label>
                     <div class="col-md-6">
                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ $rowData->name }}">
 
@@ -39,7 +39,7 @@
                 </div>
                 
                 <div class="mb-3 row">
-                    <label for="satuan" class="col-md-3 col-form-label text-md-end text-start">Nama Lokasi</label>
+                    <label for="satuan" class="col-md-3 col-form-label text-md-end text-start">Satuan</label>
                     <div class="col-md-4">
                         <input type="text" class="form-control @error('satuan') is-invalid @enderror" id="satuan" name="satuan" value="{{ $rowData->satuan }}">
 

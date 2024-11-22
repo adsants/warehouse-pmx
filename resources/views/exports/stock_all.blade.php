@@ -2,6 +2,11 @@
     
     <thead>
     <tr>
+        <th colspan="5" align="center">
+            <b>{{ $locationName }}</b>
+        </th>
+    </tr>
+    <tr>
         <th></th>
         <th>Part Number</th>
         <th>Nama Sparepart</th>

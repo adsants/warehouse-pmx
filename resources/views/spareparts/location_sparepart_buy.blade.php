@@ -32,7 +32,7 @@
                         <select name="location_id" id="location_id" required class="form-control select2">
                             <option value="">Silahkan Pilih</option>
                             @foreach ($listOfLocations as $listOfLocation)
-                                <option value="{{ $listOfLocation->id }}">{{ $listOfLocation->name }}</option>
+                                <option {{ ($locationId == $listOfLocation->id) ? "selected" : ""; }} value="{{ $listOfLocation->id }}">{{ $listOfLocation->name }}</option>
                             @endforeach
                         </select>
                         
@@ -120,6 +120,15 @@
 <script>
     $(document).ready(function() {
         $('.select2').select2();
+
+        
+        <?php
+        if($redirectLocation != '' ){
+        ?>
+            location.href = '?locationId='+<?php echo $redirectLocation;?>;
+        <?php
+        }
+        ?>
     })
 
     $("#sparepart_id").change(function(){ 

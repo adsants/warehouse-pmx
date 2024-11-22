@@ -25,7 +25,6 @@ class StoreTransactionWarehouseOutRequest extends FormRequest
             'sparepart_id' => 'required|integer',
             'from_location_id' => 'required|integer',
             'to_location_id' => 'integer',
-            'unit_id' => 'integer',
             'entry_date' => 'required|date_format:Y-m-d',
             'qty' => 'required|integer|max:99999'
         ];
