@@ -41,8 +41,8 @@ class UnitController extends Controller
      */
     public function create(): View
     {
-        $locations = Location::where('status_active','Active')->get();
-        $operators = User::get();
+        $locations = Location::where('status_active','Active')->orderBy('name')->get();
+        $operators = User::orderBy('name')->get();
         return view('units.create', compact('locations','operators'));
     }
 
@@ -81,8 +81,8 @@ class UnitController extends Controller
      */
     public function edit(Unit $unit): View
     {
-        $locations = Location::where('status_active','Active')->get();
-        $operators = User::get();
+        $locations = Location::where('status_active','Active')->orderBy('name')->get();
+        $operators = User::orderBy('name')->get();
         return view('units.edit', [
             'rowData' => $unit
         ], compact('locations','operators'));
