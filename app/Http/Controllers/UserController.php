@@ -42,7 +42,7 @@ class UserController extends Controller
     public function create(): View
     {
         //dd( Role::pluck('name')->all());
-        $locations = Location::where('status_active','Active')->get();
+        $locations = Location::where('status_active','Active')->orderBy('name')->get();
         return view('users.create', [
             'roles'     => Role::pluck('name')->all(),
             'locations' => $locations
@@ -86,7 +86,7 @@ class UserController extends Controller
         }
 
         
-        $locations  = Location::where('status_active','Active')->get();
+        $locations  = Location::where('status_active','Active')->orderBy('name')->get();
         $userLocations       = UserLocation::where('user_id', $user->id)->pluck('location_id')->all();
 
         //var_dump($aaaa);exit();
