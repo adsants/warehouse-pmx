@@ -12,6 +12,7 @@ class Sparepart extends Model
     protected $fillable = [
         'name',
         'satuan',
+        'keterangan',
         'part_number'
     ];
 }

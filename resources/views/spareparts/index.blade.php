@@ -27,8 +27,9 @@
                         <tr>
                             <th  width="2%" ></th>
                             <th width="20%">Part Number</th>
-                            <th width="30%">Nama Sparepart</th>
-                            <th width="20%">Satuan</th>
+                            <th width="20%">Nama Sparepart</th>
+                            <th width="10%">Satuan</th>
+                            <th width="30%">Keterangan</th>
                             <th width="20%">Aksi</th>
                         </tr>
                     </thead>
@@ -39,6 +40,7 @@
                             <td>{{ $rowData->part_number }}</td>
                             <td>{{ $rowData->name }}</td>
                             <td>{{ $rowData->satuan }}</td>
+                            <td>{{ $rowData->keterangan }}</td>
                             <td align="center">
                                 <form action="{{ route('spareparts.destroy', $rowData->id) }}" method="post">
                                     @csrf

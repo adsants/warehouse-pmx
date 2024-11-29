@@ -11,6 +11,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -31,9 +32,19 @@ class UserController extends Controller
      */
     public function index(): View
     {
-        return view('users.index', [
-            'users' => User::latest('id')->get()
-        ]);
+
+        if(Auth::user()->hasRole('Super Admin')){
+            return view('users.index', [
+                'users' => User::latest('id')->get()
+            ]);
+        }
+        else{
+            return view('users.index', [
+                'users' => User::latest('id')->where('email','!=','superadmin')->get()
+            ]);
+        }
+
+        
     }
 
     /**
@@ -44,7 +55,7 @@ class UserController extends Controller
         //dd( Role::pluck('name')->all());
         $locations = Location::where('status_active','Active')->orderBy('name')->get();
         return view('users.create', [
-            'roles'     => Role::pluck('name')->all(),
+            'roles'     => Role::pluck('name')->where('name','!=','Super Admin')->all(),
             'locations' => $locations
         ]);
     }
@@ -94,7 +105,7 @@ class UserController extends Controller
             'user' => $user,
             'locations' => $locations,
             'userLocations' => $userLocations,
-            'roles' => Role::pluck('name')->all(),
+            'roles' => Role::pluck('name')->where('name','!=','Super Admin')->all(),
             'userRoles' => $user->roles->pluck('name')->all()
         ]);
     }

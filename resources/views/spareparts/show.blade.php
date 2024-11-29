@@ -39,6 +39,12 @@
                 </div>
             </div>
 
+            <div class="mb-3 row">
+                <label for="name" class="col-md-3 col-form-label text-md-end text-start"><strong>Keterangan</strong></label>
+                <div class="col-md-9" style="line-height: 35px;">
+                    {{ $rowData->keterangan }}
+                </div>
+            </div>
 
 
             <div class="mb-3 row">
