@@ -19,7 +19,7 @@
         <div class="card-body">
         @include('layouts.partials.messages')
 
-            @can('create-locations')
+            @can('create-location')
             <a href="{{ route('locations.create') }}" class="btn btn-success btn-sm my-2 mb-4"><i class="bi bi-plus-circle"></i> Tambah Data</a>
             @endcan
             <div class="table-responsive">
@@ -47,14 +47,14 @@
                                     @csrf
                                     @method('DELETE')
 
-                                    <a href="{{ route('locations.show', $rowData->id) }}" class="btn btn-warning btn-sm"><i class="bi bi-eye"></i> Detail</a>
+                                    <a href="{{ route('location.show', $rowData->id) }}" class="btn btn-warning btn-sm"><i class="bi bi-eye"></i> Detail</a>
 
                                     
-                                    @can('edit-locations')
+                                    @can('edit-location')
                                     <a href="{{ route('locations.edit', $rowData->id) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i> Ubah</a>
                                     @endcan
 
-                                    @can('delete-locations')
+                                    @can('delete-location')
                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin akan menghapus Data Lokasi {{ $rowData->name }} ?');"><i class="bi bi-trash"></i> Hapus</button>
                                     @endcan
 
