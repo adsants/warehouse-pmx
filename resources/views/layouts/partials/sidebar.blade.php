@@ -24,7 +24,7 @@
                 @canany(['create-user', 'edit-user', 'delete-user'])
                 <a class="collapse-item" href="{{ route('users.index') }}">User</a>
                 @endcanany
-                @canany(['create-lokasi', 'edit-lokasi', 'delete-lokasi'])
+                @canany(['create-location', 'edit-location', 'delete-location'])
                 <a class="collapse-item" href="{{ route('locations.index') }}">Lokasi</a>
                 @endcanany
                 @canany(['create-unit', 'edit-unit', 'delete-unit'])
