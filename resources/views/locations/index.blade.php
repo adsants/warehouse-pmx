@@ -47,7 +47,7 @@
                                     @csrf
                                     @method('DELETE')
 
-                                    <a href="{{ route('location.show', $rowData->id) }}" class="btn btn-warning btn-sm"><i class="bi bi-eye"></i> Detail</a>
+                                    <a href="{{ route('locations.show', $rowData->id) }}" class="btn btn-warning btn-sm"><i class="bi bi-eye"></i> Detail</a>
 
                                     
                                     @can('edit-location')
