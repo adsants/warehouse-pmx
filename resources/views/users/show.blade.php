@@ -26,11 +26,24 @@
                     </div>
                 </div>
 
+
+
                 <div class="mb-3 row">
                     <label for="roles" class="col-md-3 col-form-label text-md-end text-start"><strong>Roles :</strong></label>
                     <div class="col-md-6" style="line-height: 35px;">
                         @forelse ($user->getRoleNames() as $role)
                         <span class="badge bg-primary">{{ $role }}</span>
+                        @empty
+                        @endforelse
+                    </div>
+                </div>
+
+                
+                <div class="mb-3 row">
+                    <label for="roles" class="col-md-3 col-form-label text-md-end text-start"><strong>Lokasi :</strong></label>
+                    <div class="col-md-9" style="line-height: 35px;">
+                        @forelse ($userLocations as $userLocation)
+                        <span class="badge bg-primary"><b>{{ $userLocation->name }}</b></span><br>
                         @empty
                         @endforelse
                     </div>

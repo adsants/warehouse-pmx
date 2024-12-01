@@ -94,7 +94,8 @@
                     
                     <div class="mb-3 row">
                         <label for="location_id" class="col-md-3 col-form-label text-md-end text-start">Lokasi</label>
-                        <div class="col-md-9">         
+                        <div class="col-md-9">     
+                              
                             <select class="form-select form-control @error('location_id') is-invalid @enderror" multiple aria-label="location_id" id="location_id" name="location_id[]">
                                 @forelse ($locations as $location)                                
 

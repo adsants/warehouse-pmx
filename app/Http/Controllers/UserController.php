@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -35,12 +36,12 @@ class UserController extends Controller
 
         if(Auth::user()->hasRole('Super Admin')){
             return view('users.index', [
-                'users' => User::latest('id')->get()
+                'users' => User::orderBy('name')->get()
             ]);
         }
         else{
             return view('users.index', [
-                'users' => User::latest('id')->where('email','!=','superadmin')->get()
+                'users' => User::where('email','!=','superadmin')->orderBy('name')->get()
             ]);
         }
 
@@ -65,11 +66,25 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): RedirectResponse
     {
+
+        
+       
         $input = $request->all();
         $input['password'] = Hash::make($request->password);
 
         $user = User::create($input);
         $user->assignRole($request->roles);
+
+
+        if(!empty($request->location_id)){
+            $userLocationsArray = $request->location_id;
+            foreach( $userLocationsArray as $locationId){
+                $userLocations                  = new UserLocation();
+                $userLocations->location_id     = $locationId;
+                $userLocations->user_id         = $user->id;
+                $userLocations->save();
+            }
+        }
 
         return redirect()->route('users.index')->withSuccess('Data User telah berhasil ditambah.');
     }
@@ -79,8 +94,19 @@ class UserController extends Controller
      */
     public function show(User $user): View
     {
+
+
+        $userLocations = DB::table('user_locations')
+        ->select('locations.id', 'locations.name', 'locations.location_type')
+        ->join('locations','locations.id','=','user_locations.location_id')
+        ->orderBy('locations.name','asc')
+        ->where('user_locations.user_id','=', $user->id)
+        ->get();
+        
+
         return view('users.show', [
-            'user' => $user
+            'user' => $user,
+            'userLocations' => $userLocations,
         ]);
     }
 
@@ -115,6 +141,8 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
+
+
         $input = $request->all();
  
         if(!empty($request->password)){
