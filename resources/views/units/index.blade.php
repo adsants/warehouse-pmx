@@ -28,13 +28,13 @@
                         <tr>
                             <th scope="col"></th>
                             <th width="10%">{{ __('Hull Number') }}</th>
-                            <th width="10%">{{ __('Type') }}</th>
-                            <th width="10%">{{ __('Model') }}</th>
+                            <th width="5%">{{ __('Type') }}</th>
+                            <th width="5%">{{ __('Model') }}</th>
                             <th width="10%">{{ __('Merk') }}</th>
                             <th width="10%">{{ __('S/N') }}</th>
-                            <th width="20%">{{ __('Detail') }}</th>
-                            <th width="20%">{{ __('Detail') }}</th>
-                            <th scope="col">Aksi</th>
+                            <th width="10%">{{ __('Detail') }}</th>
+                            <th width="20%">{{ __('Keterangan') }}</th>
+                            <th width="20%"scope="col">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
