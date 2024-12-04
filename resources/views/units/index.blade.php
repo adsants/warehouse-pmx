@@ -33,6 +33,7 @@
                             <th width="10%">{{ __('Merk') }}</th>
                             <th width="10%">{{ __('S/N') }}</th>
                             <th width="20%">{{ __('Detail') }}</th>
+                            <th width="20%">{{ __('Detail') }}</th>
                             <th scope="col">Aksi</th>
                         </tr>
                     </thead>
@@ -50,6 +51,7 @@
                                 <br>
                                 {{ $rowData->location_name }}
                             </td> 
+                            <td>{{ $rowData->keterangan }}</td> 
                             <td align="center">
                                 <form action="{{ route('units.destroy', $rowData->id) }}" method="post">
                                     @csrf

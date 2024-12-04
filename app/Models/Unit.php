@@ -19,6 +19,7 @@ class Unit extends Model
         'year_build',
         'buying_date',
         'operator_name',
+        'keterangan',
         'location_name'
     ];
 }

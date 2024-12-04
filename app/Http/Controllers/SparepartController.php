@@ -52,7 +52,7 @@ class SparepartController extends Controller
     public function store(StoreSparepartRequest $request): RedirectResponse
     {
         Sparepart::create($request->all());
-        return redirect()->route('spareparts.index')->withSuccess('Tambah Data Lokasi telah berhasil.');
+        return redirect()->route('spareparts.index')->withSuccess('Tambah Data Spareapart telah berhasil.');
     }
 
     /**
@@ -94,7 +94,7 @@ class SparepartController extends Controller
     public function update(UpdateSparepartRequest $request, Sparepart $sparepart): RedirectResponse
     {
         $sparepart->update($request->all());
-        return redirect()->route('spareparts.index')->withSuccess('Ubah Data Lokasi telah berhasil.');
+        return redirect()->route('spareparts.index')->withSuccess('Ubah Data Spareapart telah berhasil.');
     }
 
     /**

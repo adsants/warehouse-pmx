@@ -132,6 +132,17 @@
                     </div>
                 </div>
 
+                <div class="mb-3 row">
+                    <label for="keterangan" class="col-md-3 col-form-label text-md-end text-start">Keterangan</label>
+                    <div class="col-md-9">
+                        <textarea class="form-control @error('keterangan') is-invalid @enderror" id="keterangan"  rows="8" name="keterangan">{{ $rowData->keterangan }}</textarea>
+
+                        @if ($errors->has('keterangan'))
+                        <span class="text-danger">{{ $errors->first('keterangan') }}</span>
+                        @endif
+                    </div>
+                </div>
+                
 
                 <div class="mb-3 row">
                     <label for="permissions" class="col-md-3 col-form-label text-md-end text-start"></label>
