@@ -13,6 +13,9 @@ use App\Http\Controllers\ReportSparepartController;
 Auth::routes();
 Route::get('/', [HomeController::class, 'index'])->name('index');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/change-password', [UserController::class, 'changePassword'])->name('changePassword');
+Route::put('/update-password', [UserController::class, 'updatePassword'])->name('updatePassword');
+
 
 Route::resources([
     'roles'         => RoleController::class,

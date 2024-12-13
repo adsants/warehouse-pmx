@@ -66,6 +66,9 @@
 
 
 
+                <a class="dropdown-item" href="{{ route('changePassword') }}">
+                    Ubah Password
+                </a>
 
                 <a class="dropdown-item" href="{{ route('logout') }}"
                     onclick="event.preventDefault();

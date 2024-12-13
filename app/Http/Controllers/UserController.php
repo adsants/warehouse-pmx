@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangePasswordRequest;
 use App\Models\User;
 use App\Models\Location;
 use App\Models\UserLocation;
@@ -186,4 +187,31 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('users.index')->withSuccess('Data User telah berhasil dihapus.');
     }
+
+    public function updatePassword(ChangePasswordRequest $request, User $user): RedirectResponse
+    {
+
+
+        $input = $request->all();
+ 
+        if(!empty($request->password)){
+            $newPass = Hash::make($request->password);
+            
+            DB::select("update users set password = '".$newPass."' where id = ?", [auth()->user()->id]);      
+        }
+
+        return redirect()->back()->withSuccess('Password telah berhasil diubah.');
+    }
+
+
+
+    
+    public function changePassword(): View
+    {
+       
+        return view('users.change_password', [
+            'user' =>  User::find(auth()->user()->id)
+        ]);
+    }
+
 }
