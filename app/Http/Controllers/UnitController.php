@@ -12,6 +12,11 @@ use App\Http\Requests\UpdateUnitRequest;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
+use Illuminate\Http\Request;
+
+use App\Exports\UnitExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class UnitController extends Controller
 {
     /**
@@ -121,5 +126,11 @@ class UnitController extends Controller
     {
         $unit->delete();
         return redirect()->route('units.index')->withSuccess('Hapus data Unit telah berhasil.');
+    }
+
+
+    public function exportExcel(Request $request) 
+    {
+        return Excel::download(new UnitExport() , 'List Unit - '.now().'.xlsx');
     }
 }

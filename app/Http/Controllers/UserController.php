@@ -14,6 +14,10 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+
+use App\Exports\UserExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -212,6 +216,10 @@ class UserController extends Controller
         return view('users.change_password', [
             'user' =>  User::find(auth()->user()->id)
         ]);
+    }
+    public function exportExcel(Request $request) 
+    {
+        return Excel::download(new UserExport() , 'List Unit - '.now().'.xlsx');
     }
 
 }

@@ -21,6 +21,10 @@
 
             @can('create-unit')
             <a href="{{ route('units.create') }}" class="btn btn-success btn-sm my-2 mb-4"><i class="bi bi-plus-circle"></i> Tambah Data</a>
+            &nbsp;
+            &nbsp;
+            
+            <a href="/export-unit" class="btn btn-primary btn-sm my-2 mb-4"><i class="bi bi-print"></i> Export Excel</a>
             @endcan
             <div class="table-responsive">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">

@@ -57,3 +57,6 @@ Route::get('/report-stock-sparepart', [ReportSparepartController::class, 'report
 
 Route::get('/sparepart-unit', [ReportSparepartController::class, 'reportSparepartUnit'])->name('reportSparepartUnit');
 
+Route::get('/export-unit', [UnitController::class, 'exportExcel'])->name('exportExcelUnit');
+Route::get('/export-user', [UserController::class, 'exportExcel'])->name('exportExcelUser');
+
