@@ -219,7 +219,7 @@ class UserController extends Controller
     }
     public function exportExcel(Request $request) 
     {
-        return Excel::download(new UserExport() , 'List Unit - '.now().'.xlsx');
+        return Excel::download(new UserExport() , 'List User - '.now().'.xlsx');
     }
 
 }

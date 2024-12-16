@@ -2,7 +2,6 @@
     
     <thead>
     <tr>
-        <th></th>
         <th>Hull Number</th>
         <th>Type</th>
         <th>Model</th>

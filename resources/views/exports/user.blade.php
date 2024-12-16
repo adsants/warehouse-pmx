@@ -2,9 +2,9 @@
     
     <thead>
     <tr>
-        <th scope="col">Nama</th>
-        <th scope="col">Username</th>
-        <th scope="col">Kategori User</th>
+        <th>Nama</th>
+        <th>Username</th>
+        <th>Kategori User</th>
     </tr>
     </thead>
     <tbody>
