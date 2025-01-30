@@ -56,14 +56,14 @@
                 </div>
                 <div class="mb-3 row">
                     <label for="email" class="col-md-3 col-form-label text-md-end text-start"><strong>Bukti Kepemilikan :</strong></label>
-                    <div class="col-md-3" style="line-height: 35px;">
-                        {{ $rowData->bukti_kepemilikan }}
+                    <div class="col-md-9" style="line-height: 35px;">
+                        <a href="{{ $rowData->bukti_kepemilikan }}" target="_blank">{{ $rowData->bukti_kepemilikan }}</a>
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="email" class="col-md-3 col-form-label text-md-end text-start"><strong>Surat Ijin :</strong></label>
-                    <div class="col-md-3" style="line-height: 35px;">
-                        {{ $rowData->surat_ijin }}
+                    <div class="col-md-9" style="line-height: 35px;">
+                        <a href="{{ $rowData->surat_ijin }}" target="_blank">{{ $rowData->surat_ijin }}</a>
                     </div>
                 </div>
                 <div class="mb-3 row">
