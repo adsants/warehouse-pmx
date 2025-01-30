@@ -19,6 +19,8 @@ class Unit extends Model
         'year_build',
         'buying_date',
         'operator_name',
+        'bukti_kepemilikan',
+        'surat_ijin',
         'keterangan',
         'location_name'
     ];

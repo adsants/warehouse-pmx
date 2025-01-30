@@ -108,6 +108,29 @@
                     </div>
                 </div>
 
+                
+                <div class="mb-3 row">
+                    <label for="name" class="col-md-3 col-form-label text-md-end text-start">Bukti Kepemilikan</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control @error('bukti_kepemilikan') is-invalid @enderror" id="bukti_kepemilikan" name="bukti_kepemilikan" value="{{ old('bukti_kepemilikan') }}" >
+                        
+                        @if ($errors->has('bukti_kepemilikan'))
+                        <span class="text-danger">{{ $errors->first('bukti_kepemilikan') }}</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="name" class="col-md-3 col-form-label text-md-end text-start">Surat Ijin</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control @error('surat_ijin') is-invalid @enderror" id="surat_ijin" name="surat_ijin" value="{{ old('surat_ijin') }}" >
+                        
+                        @if ($errors->has('surat_ijin'))
+                        <span class="text-danger">{{ $errors->first('surat_ijin') }}</span>
+                        @endif
+                    </div>
+                </div>
+
+
                 <div class="mb-3 row">
                     <label for="name" class="col-md-3 col-form-label text-md-end text-start">Lokasi</label>
                     <div class="col-md-9">

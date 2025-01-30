@@ -55,6 +55,18 @@
                     </div>
                 </div>
                 <div class="mb-3 row">
+                    <label for="email" class="col-md-3 col-form-label text-md-end text-start"><strong>Bukti Kepemilikan :</strong></label>
+                    <div class="col-md-3" style="line-height: 35px;">
+                        {{ $rowData->bukti_kepemilikan }}
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="email" class="col-md-3 col-form-label text-md-end text-start"><strong>Surat Ijin :</strong></label>
+                    <div class="col-md-3" style="line-height: 35px;">
+                        {{ $rowData->surat_ijin }}
+                    </div>
+                </div>
+                <div class="mb-3 row">
                     <label for="email" class="col-md-3 col-form-label text-md-end text-start"><strong>Operator :</strong></label>
                     <div class="col-md-3" style="line-height: 35px;">
                         {{ $rowData->operator_name }}
